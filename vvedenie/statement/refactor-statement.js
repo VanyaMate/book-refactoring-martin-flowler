@@ -1,3 +1,15 @@
+/**
+ *  Безусловно я не делал проверок на типы - что является ошибкой, 
+ *  а так же перед рефакторингом нужно написать тесты.
+ *  Плюс названия для всего выбраны "на пофиг", так как на 100% не понятно что является чем, 
+ *  и тратить время на придумывание не хочется.
+ *  
+ *  Но: 
+ *  1. На JS я не пишу, TS типы убирают потребность в проверки типов. 
+ *  2. Мне лень писать тесты сюда, но на проде, разумеется, тесты 100% нужно было бы написать.
+ */
+
+
 const { invoices, plays } = require('./info.js');
 
 
@@ -72,6 +84,14 @@ const getCreditsByCategory = function (category, personsAmount) {
     throw new Error(`Credits for category '${category}' not exist`);
 }
 
+const getPlayInfoById = function (id) {
+    return plays[id];
+}
+
+const getPlayInfoByPerformance = function (performance) {
+    return getPlayInfoById(performance.playlD);
+}
+
 const statement = function (invoice, plays) {
     const result = {
         customer: invoice.customer,
@@ -80,18 +100,18 @@ const statement = function (invoice, plays) {
         performancesCosts: []
     }
 
-    let play, cost, credits, performance;
+    let type, cost, credits, performance;
     for (performance of invoice.performances) {
-        play = plays[performance.playlD];
-        cost = getCostByCategory(play.type, performance.audience);
-        credits = getCreditsByCategory(play.type, performance.audience);
+        type = getPlayInfoByPerformance(performance).type;
+        cost = getCostByCategory(type, performance.audience);
+        credits = getCreditsByCategory(type, performance.audience);
+
         result.totalCost += cost;
         result.totalCredits += credits;
-
         result.performancesCosts.push({
             title: performance.playlD,
             audience: performance.audience,
-            type: play.type,
+            type: type,
             cost: cost,
             credits: credits,
         })
